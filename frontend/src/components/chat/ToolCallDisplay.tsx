@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ToolCall } from "@/types/chat";
 
 interface ToolCallDisplayProps {
@@ -60,12 +61,17 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
                     {getDisplayText()}
                   </p>
 
-                  {/* Loading indicator for calling status */}
+                  {/* Enhanced loading indicator for calling status */}
                   {!isComplete && (
-                    <div className="flex space-x-1">
-                      <div className="w-1 h-1 bg-accent-foreground/60 rounded-full animate-bounce" />
-                      <div className="w-1 h-1 bg-accent-foreground/60 rounded-full animate-bounce delay-100" />
-                      <div className="w-1 h-1 bg-accent-foreground/60 rounded-full animate-bounce delay-200" />
+                    <div className="flex items-center space-x-2">
+                      <div className="flex space-x-1">
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" />
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce delay-75" />
+                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce delay-150" />
+                      </div>
+                      <div className="w-8 h-2 bg-accent-foreground/20 rounded-full overflow-hidden">
+                        <div className="w-full h-full bg-blue-500 rounded-full animate-pulse" />
+                      </div>
                     </div>
                   )}
                 </div>
@@ -79,17 +85,24 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
                     </p>
                   )}
 
-                {/* Show result preview if complete */}
-                {isComplete && toolCall.result && (
-                  <div className="mt-2 p-2 bg-background/50 rounded border">
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {toolCall.name === "current_time"
-                        ? `时间: ${toolCall.result}`
-                        : `搜索结果: ${toolCall.result.substring(0, 100)}${
-                            toolCall.result.length > 100 ? "..." : ""
-                          }`}
-                    </p>
+                {/* Show skeleton while loading or result preview if complete */}
+                {!isComplete ? (
+                  <div className="mt-2 space-y-1">
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
                   </div>
+                ) : (
+                  toolCall.result && (
+                    <div className="mt-2 p-2 bg-background/50 rounded border">
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {toolCall.name === "current_time"
+                          ? `时间: ${toolCall.result}`
+                          : `搜索结果: ${toolCall.result.substring(0, 100)}${
+                              toolCall.result.length > 100 ? "..." : ""
+                            }`}
+                      </p>
+                    </div>
+                  )
                 )}
               </div>
 

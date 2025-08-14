@@ -9,6 +9,7 @@ interface MessageListProps {
   toolCalls: ToolCall[];
   isStreaming: boolean;
   className?: string;
+  showLoadingSkeleton?: boolean;
 }
 
 export function MessageList({
@@ -16,6 +17,7 @@ export function MessageList({
   toolCalls,
   isStreaming,
   className,
+  showLoadingSkeleton = false,
 }: MessageListProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -123,6 +125,14 @@ export function MessageList({
           );
         }
       })}
+
+      {/* Show loading skeleton when processing */}
+      {showLoadingSkeleton && (
+        <>
+          <ToolCallSkeleton toolType="time" />
+          <MessageSkeleton isUser={false} />
+        </>
+      )}
 
       {/* Scroll anchor */}
       <div ref={messagesEndRef} className="h-1" />

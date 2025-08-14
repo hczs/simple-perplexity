@@ -10,6 +10,7 @@ interface ChatInputProps {
   disabled: boolean;
   placeholder?: string;
   isStreaming?: boolean;
+  isSending?: boolean;
 }
 
 export function ChatInput({
@@ -17,6 +18,7 @@ export function ChatInput({
   disabled,
   placeholder = "输入您的消息...",
   isStreaming = false,
+  isSending = false,
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
 
@@ -39,18 +41,21 @@ export function ChatInput({
 
   return (
     <div className="border-t bg-background">
-      {/* Streaming indicator */}
+      {/* Enhanced streaming indicator */}
       {isStreaming && (
-        <div className="px-4 py-2 border-b bg-muted/30">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <div className="flex space-x-1">
-              <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce" />
-              <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce delay-100" />
-              <div className="w-1 h-1 bg-blue-500 rounded-full animate-bounce delay-200" />
+        <div className="px-4 py-3 border-b bg-gradient-to-r from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20">
+          <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" />
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-75" />
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce delay-150" />
             </div>
-            <span className="text-blue-600 dark:text-blue-400">
+            <span className="text-blue-600 dark:text-blue-400 font-medium">
               AI 正在思考并回复中...
             </span>
+            <div className="flex-1 h-1 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
+              <div className="h-full bg-blue-500 rounded-full animate-pulse" />
+            </div>
           </div>
         </div>
       )}
@@ -68,11 +73,19 @@ export function ChatInput({
         />
         <Button
           onClick={handleSend}
-          disabled={disabled || isMessageEmpty}
+          disabled={disabled || isMessageEmpty || isSending}
           size="icon"
           className="shrink-0"
         >
-          <Send className="h-4 w-4" />
+          {isSending ? (
+            <div className="flex space-x-0.5">
+              <div className="w-1 h-1 bg-current rounded-full animate-bounce" />
+              <div className="w-1 h-1 bg-current rounded-full animate-bounce delay-100" />
+              <div className="w-1 h-1 bg-current rounded-full animate-bounce delay-200" />
+            </div>
+          ) : (
+            <Send className="h-4 w-4" />
+          )}
         </Button>
       </div>
     </div>

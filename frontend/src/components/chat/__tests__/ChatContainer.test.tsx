@@ -8,6 +8,7 @@ const mockUseChat = {
   currentToolCalls: [],
   isConnected: false,
   isStreaming: false,
+  isSending: false,
   error: null,
   sendMessage: vi.fn(),
   resetChat: vi.fn(),
@@ -60,6 +61,7 @@ describe("ChatContainer", () => {
       currentToolCalls: [],
       isConnected: false,
       isStreaming: false,
+      isSending: false,
       error: null,
       sendMessage: vi.fn(),
       resetChat: vi.fn(),
@@ -70,10 +72,9 @@ describe("ChatContainer", () => {
   it("renders the chat container with all components", () => {
     render(<ChatContainer />);
 
-    expect(screen.getByText("AI 助手")).toBeInTheDocument();
+    expect(screen.getByText("AI")).toBeInTheDocument();
     expect(screen.getByTestId("message-list")).toBeInTheDocument();
     expect(screen.getByTestId("chat-input")).toBeInTheDocument();
-    expect(screen.getByTestId("theme-toggle")).toBeInTheDocument();
   });
 
   it("shows connection status correctly", () => {
@@ -137,7 +138,7 @@ describe("ChatContainer", () => {
     });
     render(<ChatContainer />);
 
-    expect(screen.getByText("重置对话")).toBeInTheDocument();
+    expect(screen.getByText("重置")).toBeInTheDocument();
   });
 
   it("handles reset chat button click", async () => {
@@ -154,7 +155,7 @@ describe("ChatContainer", () => {
     });
     render(<ChatContainer />);
 
-    const resetButton = screen.getByText("重置对话");
+    const resetButton = screen.getByText("重置");
     fireEvent.click(resetButton);
 
     expect(mockUseChat.resetChat).toHaveBeenCalledTimes(1);
@@ -245,7 +246,7 @@ describe("ChatContainer", () => {
     });
     render(<ChatContainer />);
 
-    const resetButton = screen.getByText("重置对话");
+    const resetButton = screen.getByText("重置");
     expect(resetButton).toBeDisabled();
   });
 });

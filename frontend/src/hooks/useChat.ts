@@ -16,6 +16,7 @@ type ChatAction =
   | { type: 'CLEAR_TOOL_CALLS' }
   | { type: 'SET_CONNECTION_STATUS'; payload: { isConnected: boolean } }
   | { type: 'SET_STREAMING_STATUS'; payload: { isStreaming: boolean } }
+  | { type: 'SET_SENDING_STATUS'; payload: { isSending: boolean } }
   | { type: 'SET_ERROR'; payload: { error: string | null } }
   | { type: 'RESET_CHAT' };
 
@@ -25,6 +26,7 @@ const initialState: ChatState = {
   currentToolCalls: [],
   isConnected: false,
   isStreaming: false,
+  isSending: false,
   error: null,
 };
 
@@ -64,6 +66,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       return {
         ...state,
         messages: [...state.messages, newMessage],
+        isSending: true,
         error: null,
       };
     }
@@ -76,6 +79,7 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
             ? { ...msg, status: 'sent' as const }
             : msg
         ),
+        isSending: false,
       };
     }
 
@@ -161,11 +165,19 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       };
     }
 
+    case 'SET_SENDING_STATUS': {
+      return {
+        ...state,
+        isSending: action.payload.isSending,
+      };
+    }
+
     case 'SET_ERROR': {
       return {
         ...state,
         error: action.payload.error,
         isStreaming: false,
+        isSending: false,
         isConnected: false,
       };
     }
@@ -185,6 +197,7 @@ export interface UseChatReturn {
   currentToolCalls: ToolCall[];
   isConnected: boolean;
   isStreaming: boolean;
+  isSending: boolean;
   error: string | null;
   
   // Actions
@@ -391,6 +404,7 @@ export const useChat = (): UseChatReturn => {
     currentToolCalls: state.currentToolCalls,
     isConnected: state.isConnected,
     isStreaming: state.isStreaming,
+    isSending: state.isSending,
     error: state.error,
     
     // Actions

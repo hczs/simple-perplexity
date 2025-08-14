@@ -19,6 +19,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
     currentToolCalls,
     isConnected,
     isStreaming,
+    isSending,
     error,
     sendMessage,
     resetChat,
@@ -51,7 +52,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
   }, [resetChat]);
 
   // Determine if input should be disabled
-  const isInputDisabled = isStreaming || Boolean(error);
+  const isInputDisabled = isStreaming || isSending || Boolean(error);
 
   // Connection status indicator
   const ConnectionStatus = () => (
@@ -67,7 +68,19 @@ export function ChatContainer({ className }: ChatContainerProps) {
           <span>未连接</span>
         </>
       )}
-      {isStreaming && (
+      {isSending && (
+        <div className="flex items-center gap-1">
+          <div className="flex space-x-1">
+            <div className="h-1.5 w-1.5 bg-orange-500 rounded-full animate-bounce" />
+            <div className="h-1.5 w-1.5 bg-orange-500 rounded-full animate-bounce delay-100" />
+            <div className="h-1.5 w-1.5 bg-orange-500 rounded-full animate-bounce delay-200" />
+          </div>
+          <span className="text-orange-600 dark:text-orange-400">
+            正在发送消息...
+          </span>
+        </div>
+      )}
+      {isStreaming && !isSending && (
         <div className="flex items-center gap-1">
           <div className="flex space-x-1">
             <div className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-bounce" />
@@ -136,7 +149,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
             variant="ghost"
             size="sm"
             onClick={handleResetChat}
-            disabled={isStreaming}
+            disabled={isStreaming || isSending}
             className="text-muted-foreground hover:text-foreground h-8"
           >
             <RefreshCw className="h-3 w-3 mr-1" />
@@ -167,6 +180,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
         messages={messages}
         toolCalls={currentToolCalls}
         isStreaming={isStreaming}
+        showLoadingSkeleton={isSending && !isStreaming}
         className="flex-1 min-h-0"
       />
 
@@ -175,9 +189,12 @@ export function ChatContainer({ className }: ChatContainerProps) {
         onSendMessage={handleSendMessage}
         disabled={isInputDisabled}
         isStreaming={isStreaming}
+        isSending={isSending}
         placeholder={
           error
             ? "请先解决连接错误..."
+            : isSending
+            ? "正在发送消息..."
             : isStreaming
             ? "正在处理中，请稍候..."
             : "输入您的消息..."

@@ -22,5 +22,6 @@ export interface ChatState {
   currentToolCalls: ToolCall[];
   isConnected: boolean;
   isStreaming: boolean;
+  isSending: boolean;
   error: string | null;
 }

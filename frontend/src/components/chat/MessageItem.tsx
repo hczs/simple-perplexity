@@ -82,7 +82,13 @@ export function MessageItem({
           <CardContent className="p-4">
             {/* Message content */}
             <div className="space-y-2">
-              {displayedContent || (isUser && message.content) ? (
+              {/* Show skeleton for sending messages */}
+              {message.status === "sending" && isUser ? (
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              ) : displayedContent || (isUser && message.content) ? (
                 <p className="text-sm leading-relaxed whitespace-pre-wrap">
                   {isUser ? message.content : displayedContent}
                   {showCursor && isAssistant && (
@@ -94,6 +100,7 @@ export function MessageItem({
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-4 w-1/2" />
                   </div>
                 )
               )}
