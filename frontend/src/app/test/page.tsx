@@ -1,3 +1,4 @@
+import { MessageDemo } from "@/components/chat/MessageDemo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -94,6 +95,16 @@ export default function TestPage() {
               <Skeleton className="h-4 w-[150px]" />
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Message Components Test</CardTitle>
+          <CardDescription>Testing the chat message components</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <MessageDemo />
         </CardContent>
       </Card>
     </div>

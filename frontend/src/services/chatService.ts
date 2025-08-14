@@ -1,5 +1,6 @@
 import { ChatRequest, SSEEvent } from '@/types/api';
 import { ChatError } from '@/types/errors';
+import { validateSSEEvent } from '@/utils/sseParser';
 
 export class ChatService {
   private readonly baseUrl: string;
