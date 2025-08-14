@@ -1,224 +1,224 @@
-# Simple Perplexity API
+# 简单智能问答系统
 
-[English](README.md) | [中文](README_CN.md)
+[中文](README.md) | [English](README_EN.md)
 
 ---
 
-A full-stack intelligent Q&A system built with LangGraph and Next.js, providing real-time streaming responses with tool integration capabilities.
+基于 LangGraph 和 Next.js 构建的全栈智能问答系统，提供实时流式响应和工具集成功能。
 
-## 🚀 Features
+## 🚀 特性
 
-- **Intelligent Question Processing**: Automatically analyzes and optimizes user questions
-- **Real-time Streaming**: Server-sent events for live response streaming
-- **Tool Integration**: Extensible tool system for enhanced functionality
-- **Modern UI**: Clean, responsive interface with dark/light theme support
-- **Full-stack Architecture**: FastAPI backend with Next.js frontend
+- **智能问题处理**：自动分析和优化用户问题
+- **实时流式响应**：使用服务器发送事件实现实时响应流
+- **工具集成**：可扩展的工具系统，增强功能性
+- **现代化界面**：简洁响应式界面，支持深色/浅色主题
+- **全栈架构**：FastAPI 后端 + Next.js 前端
 
-## 📸 Screenshots
+## 📸 项目展示
 
-### Light Theme
+### 浅色主题
 
-![Light Theme](img/light.png)
+![浅色主题](img/light.png)
 
-### Dark Theme
+### 深色主题
 
-![Dark Theme](img/dark.png)
+![深色主题](img/dark.png)
 
-## 🏗️ Architecture
+## 🏗️ 项目架构
 
 ```
-├── backend/          # FastAPI backend
+├── backend/          # FastAPI 后端
 │   ├── app/
-│   │   ├── api.py           # API routes
-│   │   ├── graph.py         # LangGraph workflow
-│   │   ├── nodes/           # Graph nodes
-│   │   ├── schema.py        # Data models
-│   │   └── tools.py         # Tool implementations
-│   └── pyproject.toml       # Python dependencies
-└── frontend/         # Next.js frontend
+│   │   ├── api.py           # API 路由
+│   │   ├── graph.py         # LangGraph 工作流
+│   │   ├── nodes/           # 图节点
+│   │   ├── schema.py        # 数据模型
+│   │   └── tools.py         # 工具实现
+│   └── pyproject.toml       # Python 依赖
+└── frontend/         # Next.js 前端
     ├── src/
-    ├── package.json         # Node.js dependencies
-    └── next.config.ts       # Next.js configuration
+    ├── package.json         # Node.js 依赖
+    └── next.config.ts       # Next.js 配置
 ```
 
-## 🛠️ Tech Stack
+## 🛠️ 技术栈
 
-**Backend:**
+**后端：**
 
-- FastAPI - Modern Python web framework
-- LangGraph - Workflow orchestration
-- LangChain - LLM integration
-- Pydantic - Data validation
+- FastAPI - 现代 Python Web 框架
+- LangGraph - 工作流编排
+- LangChain - LLM 集成
+- Pydantic - 数据验证
 
-**Frontend:**
+**前端：**
 
-- Next.js 15 - React framework
-- TypeScript - Type safety
-- Tailwind CSS - Styling
-- Radix UI - Component library
+- Next.js 15 - React 框架
+- TypeScript - 类型安全
+- Tailwind CSS - 样式框架
+- Radix UI - 组件库
 
-## 📦 Installation
+## 📦 安装
 
-### Prerequisites
+### 环境要求
 
 - Python 3.12+
 - Node.js 18+
-- pnpm (recommended)
+- pnpm（推荐）
 
-### Backend Setup
+### 后端设置
 
 ```bash
 cd backend
-pip install uv  # or use your preferred Python package manager
+pip install uv  # 或使用你偏好的 Python 包管理器
 uv sync
 ```
 
-### Frontend Setup
+### 前端设置
 
 ```bash
 cd frontend
 pnpm install
 ```
 
-## 🚀 Running the Application
+## 🚀 运行应用
 
-### Start Backend
+### 启动后端
 
 ```bash
 cd backend
 uv run uvicorn app.main:app --reload --port 8000
 ```
 
-### Start Frontend
+### 启动前端
 
 ```bash
 cd frontend
 pnpm dev
 ```
 
-The application will be available at:
+应用将在以下地址可用：
 
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API Documentation: http://localhost:8000/docs
+- 前端：http://localhost:3000
+- 后端 API：http://localhost:8000
+- API 文档：http://localhost:8000/docs
 
-## 📡 API Endpoints
+## 📡 API 接口
 
-- `GET /api/` - Health check
-- `POST /api/chat` - Chat endpoint with streaming response
+- `GET /api/` - 健康检查
+- `POST /api/chat` - 聊天接口，支持流式响应
 
-### Chat API Example
+### 聊天接口示例
 
-**Request:**
+**请求：**
 
 ```json
 {
-  "question": "What's the weather like in Beijing tomorrow?"
+  "question": "北京明天天气怎么样？"
 }
 ```
 
-**Response:**
-Streaming response with the following event types:
+**响应：**
+流式响应，包含以下事件类型：
 
-- `chat_event` - Chat content
-- `tool_event` - Tool execution information
+- `chat_event` - 聊天内容
+- `tool_event` - 工具调用信息
 
-## 🧪 Testing
+## 🧪 测试
 
 ```bash
-# Frontend tests
+# 前端测试
 cd frontend
 pnpm test
 
-# Run tests with UI
+# 运行带 UI 的测试
 pnpm test:ui
 
-# Run tests once
+# 运行单次测试
 pnpm test:run
 ```
 
-## 🔧 Configuration
+## 🔧 配置
 
-1. Copy environment files:
+1. 复制环境文件：
 
    ```bash
    cp backend/.env.example backend/.env
    ```
 
-2. Configure your environment variables in `backend/.env`:
+2. 在 `backend/.env` 中配置环境变量：
    ```env
    OPENAI_API_KEY=your_openai_api_key
    TAVILY_API_KEY=your_tavily_api_key
    ```
 
-## 📝 Development
+## 📝 开发说明
 
-### Workflow
+### 工作流程
 
-The system uses a graph-based workflow with the following nodes:
+系统使用基于图的工作流，包含以下节点：
 
-1. **Supervisor**: Analyzes requests and decides next actions
-2. **Question Analysis**: Optimizes and analyzes user questions
-3. **Researcher**: Performs research using available tools
-4. **Tool Router**: Manages tool execution flow
-5. **Answer**: Generates final responses
+1. **Supervisor（监督者）**：分析请求并决定下一步操作
+2. **Question Analysis（问题分析）**：优化和分析用户问题
+3. **Researcher（研究员）**：使用工具进行信息搜索
+4. **Tool Router（工具路由）**：管理工具执行流程
+5. **Answer（回答）**：生成最终响应
 
-### Adding New Tools
+### 添加新工具
 
-1. Define new tools in `backend/app/tools.py`
-2. Register tools in `backend/app/nodes/tool_node.py`
-3. Update tool parsers
+1. 在 `backend/app/tools.py` 中定义新工具
+2. 在 `backend/app/nodes/tool_node.py` 中注册工具
+3. 更新工具解析器
 
-### Frontend Development
+### 前端开发
 
-The frontend uses Next.js 15 with App Router, featuring:
+前端使用 Next.js 15 和 App Router，主要特性：
 
-- Server-side rendering
-- Real-time streaming data processing
-- Responsive design
-- Theme switching
+- 服务器端渲染
+- 实时流式数据处理
+- 响应式设计
+- 主题切换
 
-## 🐛 Troubleshooting
+## 🐛 故障排除
 
-### Common Issues
+### 常见问题
 
-1. **Backend startup fails**
+1. **后端启动失败**
 
-   - Check Python version is 3.12+
-   - Ensure all dependencies are installed correctly
+   - 检查 Python 版本是否为 3.12+
+   - 确认所有依赖已正确安装
 
-2. **Frontend build errors**
+2. **前端构建错误**
 
-   - Clear cache: `pnpm clean`
-   - Reinstall dependencies: `rm -rf node_modules && pnpm install`
+   - 清除缓存：`pnpm clean`
+   - 重新安装依赖：`rm -rf node_modules && pnpm install`
 
-3. **API connection issues**
-   - Ensure backend service is running
-   - Check CORS configuration
+3. **API 连接问题**
+   - 确认后端服务正在运行
+   - 检查 CORS 配置
 
-## 🤝 Contributing
+## 🤝 贡献
 
-Contributions are welcome! Please feel free to submit Issues and Pull Requests.
+欢迎提交 Issue 和 Pull Request！
 
-### Contributing Guidelines
+### 贡献指南
 
-1. Fork the project
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit your changes: `git commit -m 'Add amazing feature'`
-4. Push to the branch: `git push origin feature/amazing-feature`
-5. Submit a Pull Request
+1. Fork 项目
+2. 创建功能分支：`git checkout -b feature/amazing-feature`
+3. 提交更改：`git commit -m 'Add amazing feature'`
+4. 推送到分支：`git push origin feature/amazing-feature`
+5. 提交 Pull Request
 
-## 📄 License
+## 📄 许可证
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
 
-## 📞 Contact
+## 📞 联系方式
 
-For questions or suggestions, please contact us through:
+如有问题或建议，请通过以下方式联系：
 
-- Submit an Issue
-- Email: [hczshd@gmail.com]
+- 提交 Issue
+- 发送邮件至：hczshd@gmail.com
 
 ---
 
-**Note:** This is a demonstration project. Please configure and deploy according to your actual needs.
+**注意：** 这是一个演示项目，请根据实际需求进行配置和部署。
