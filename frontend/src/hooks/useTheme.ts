@@ -1,80 +1,83 @@
 'use client';
 
-import { themeService } from '@/services/themeService';
-import { Theme, ThemeConfig } from '@/types/theme';
+import { useTheme as useNextTheme } from 'next-themes';
 import { useCallback, useEffect, useState } from 'react';
 
 /**
  * 主题管理 Hook
- * 提供主题状态和操作方法
+ * 基于 next-themes 的封装，提供统一的主题管理接口
  */
 export function useTheme() {
-  const [themeConfig, setThemeConfig] = useState<ThemeConfig>(() => 
-    themeService.getThemeConfig()
-  );
-
+  const { theme, setTheme: setNextTheme, resolvedTheme, systemTheme } = useNextTheme();
   const [isLoading, setIsLoading] = useState(true);
 
-  // 更新主题配置
-  const updateThemeConfig = useCallback(() => {
-    setThemeConfig(themeService.getThemeConfig());
-  }, []);
-
   // 设置主题
-  const setTheme = useCallback((theme: Theme) => {
-    themeService.setTheme(theme);
-  }, []);
+  const setTheme = useCallback((theme: string) => {
+    setNextTheme(theme);
+  }, [setNextTheme]);
 
-  // 切换主题
+  // 切换主题（在 light、dark、system 之间循环）
   const toggleTheme = useCallback(() => {
-    themeService.toggleTheme();
-  }, []);
+    if (theme === "light") {
+      setNextTheme("dark");
+    } else if (theme === "dark") {
+      setNextTheme("system");
+    } else {
+      setNextTheme("light");
+    }
+  }, [theme, setNextTheme]);
 
   // 在 light 和 dark 之间切换
   const toggleLightDark = useCallback(() => {
-    themeService.toggleLightDark();
-  }, []);
+    const resolved = resolvedTheme === "dark" ? "light" : "dark";
+    setNextTheme(resolved);
+  }, [resolvedTheme, setNextTheme]);
 
   // 获取主题显示名称
-  const getThemeDisplayName = useCallback((theme?: Theme) => {
-    return themeService.getThemeDisplayName(theme);
-  }, []);
+  const getThemeDisplayName = useCallback((targetTheme?: string) => {
+    const displayNames = {
+      light: '浅色',
+      dark: '深色',
+      system: '跟随系统',
+    };
+    const themeToDisplay = targetTheme || theme || 'system';
+    return displayNames[themeToDisplay as keyof typeof displayNames] || '未知';
+  }, [theme]);
 
   // 检查是否支持系统主题
   const supportsSystemTheme = useCallback(() => {
-    return themeService.supportsSystemTheme();
+    return typeof window !== 'undefined' && window.matchMedia !== undefined;
   }, []);
 
-  // 监听主题变化
+  // 初始化完成标记
   useEffect(() => {
-    const unsubscribe = themeService.subscribe(() => {
-      updateThemeConfig();
-    });
-
-    // 初始化完成
-    setIsLoading(false);
-
-    return unsubscribe;
-  }, [updateThemeConfig]);
+    if (theme !== undefined) {
+      setIsLoading(false);
+    }
+  }, [theme]);
 
   return {
     // 主题状态
-    theme: themeConfig.theme,
-    resolvedTheme: themeConfig.resolvedTheme,
-    systemTheme: themeConfig.systemTheme,
+    theme: theme as 'light' | 'dark' | 'system',
+    systemTheme: systemTheme as 'light' | 'dark',
+    resolvedTheme: resolvedTheme as 'light' | 'dark',
     isLoading,
-
+    
     // 主题操作
     setTheme,
     toggleTheme,
     toggleLightDark,
-
-    // 工具方法
+    
+    // 工具函数
     getThemeDisplayName,
     supportsSystemTheme,
 
-    // 完整配置
-    themeConfig,
+    // 兼容性：提供完整配置对象
+    themeConfig: {
+      theme: theme as 'light' | 'dark' | 'system',
+      systemTheme: systemTheme as 'light' | 'dark',
+      resolvedTheme: resolvedTheme as 'light' | 'dark',
+    },
   };
 }
 

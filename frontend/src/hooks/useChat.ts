@@ -9,11 +9,10 @@ type ChatAction =
   | { type: 'SEND_MESSAGE'; payload: { message: string; messageId?: string } }
   | { type: 'MESSAGE_SENT'; payload: { messageId: string } }
   | { type: 'START_STREAMING'; payload: { messageId: string } }
-  | { type: 'UPDATE_STREAMING_CONTENT'; payload: { messageId: string; content: string } }
+  | { type: 'APPEND_STREAMING_CONTENT'; payload: { messageId: string; content: string } }
   | { type: 'COMPLETE_MESSAGE'; payload: { messageId: string } }
-  | { type: 'ADD_TOOL_CALL'; payload: { toolCall: ToolCall } }
-  | { type: 'UPDATE_TOOL_CALL'; payload: { toolCallId: string; result: string; status: 'complete' } }
-  | { type: 'CLEAR_TOOL_CALLS' }
+  | { type: 'ADD_TOOL_CALL_TO_MESSAGE'; payload: { messageId: string; toolCall: ToolCall } }
+  | { type: 'UPDATE_TOOL_CALL_IN_MESSAGE'; payload: { messageId: string; toolCallId: string; result: string; status: 'complete' } }
   | { type: 'SET_CONNECTION_STATUS'; payload: { isConnected: boolean } }
   | { type: 'SET_STREAMING_STATUS'; payload: { isStreaming: boolean } }
   | { type: 'SET_SENDING_STATUS'; payload: { isSending: boolean } }
@@ -23,29 +22,13 @@ type ChatAction =
 // Initial state
 const initialState: ChatState = {
   messages: [],
-  currentToolCalls: [],
   isConnected: false,
   isStreaming: false,
   isSending: false,
   error: null,
 };
 
-// Tool display name mapping
-const getToolDisplayName = (toolName: string, param: string, status: 'calling' | 'complete', result?: string): string => {
-  switch (toolName) {
-    case 'current_time':
-      return status === 'calling' ? '正在获取当前时间' : `获取到当前时间为 ${result}`;
-    case 'tavily_search':
-      if (status === 'calling') {
-        return `正在搜索 ${param}`;
-      } else {
-        const resultCount = result ? result.split('\n').length : 0;
-        return `搜索到 ${resultCount} 个结果，正在生成回答`;
-      }
-    default:
-      return status === 'calling' ? '正在处理' : '处理完成';
-  }
-};
+
 
 // Generate unique ID
 const generateId = (): string => {
@@ -98,12 +81,12 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       };
     }
 
-    case 'UPDATE_STREAMING_CONTENT': {
+    case 'APPEND_STREAMING_CONTENT': {
       return {
         ...state,
         messages: state.messages.map(msg =>
           msg.id === action.payload.messageId
-            ? { ...msg, content: action.payload.content }
+            ? { ...msg, content: msg.content + action.payload.content }
             : msg
         ),
       };
@@ -121,33 +104,39 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
       };
     }
 
-    case 'ADD_TOOL_CALL': {
+    case 'ADD_TOOL_CALL_TO_MESSAGE': {
       return {
         ...state,
-        currentToolCalls: [...state.currentToolCalls, action.payload.toolCall],
-      };
-    }
-
-    case 'UPDATE_TOOL_CALL': {
-      return {
-        ...state,
-        currentToolCalls: state.currentToolCalls.map(toolCall =>
-          toolCall.id === action.payload.toolCallId
+        messages: state.messages.map(msg =>
+          msg.id === action.payload.messageId
             ? {
-                ...toolCall,
-                result: action.payload.result,
-                status: action.payload.status,
-                displayName: getToolDisplayName(toolCall.name, toolCall.param, action.payload.status, action.payload.result),
+                ...msg,
+                toolCalls: [...(msg.toolCalls || []), action.payload.toolCall],
               }
-            : toolCall
+            : msg
         ),
       };
     }
 
-    case 'CLEAR_TOOL_CALLS': {
+    case 'UPDATE_TOOL_CALL_IN_MESSAGE': {
       return {
         ...state,
-        currentToolCalls: [],
+        messages: state.messages.map(msg =>
+          msg.id === action.payload.messageId
+            ? {
+                ...msg,
+                toolCalls: msg.toolCalls?.map(toolCall =>
+                  toolCall.id === action.payload.toolCallId
+                    ? {
+                        ...toolCall,
+                        result: action.payload.result,
+                        status: action.payload.status,
+                      }
+                    : toolCall
+                ),
+              }
+            : msg
+        ),
       };
     }
 
@@ -194,7 +183,6 @@ const chatReducer = (state: ChatState, action: ChatAction): ChatState => {
 export interface UseChatReturn {
   // State
   messages: Message[];
-  currentToolCalls: ToolCall[];
   isConnected: boolean;
   isStreaming: boolean;
   isSending: boolean;
@@ -225,43 +213,48 @@ export const useChat = (): UseChatReturn => {
     if (event.event_name === 'tool_event') {
       const toolEvent = event as ToolEvent;
       
-      // Find existing tool call or create new one
-      const existingToolCall = state.currentToolCalls.find(
+      // 确保有当前的助手消息
+      if (!currentAssistantMessageIdRef.current) {
+        const messageId = generateId();
+        currentAssistantMessageIdRef.current = messageId;
+        dispatch({
+          type: 'START_STREAMING',
+          payload: { messageId },
+        });
+      }
+
+      const messageId = currentAssistantMessageIdRef.current;
+      const currentMessage = state.messages.find(msg => msg.id === messageId);
+      
+      // 查找现有的工具调用
+      const existingToolCall = currentMessage?.toolCalls?.find(
         tc => tc.name === toolEvent.tool_name && tc.param === toolEvent.tool_param
       );
 
-      if (existingToolCall) {
-        // Update existing tool call
-        if (toolEvent.tool_result) {
-          dispatch({
-            type: 'UPDATE_TOOL_CALL',
-            payload: {
-              toolCallId: existingToolCall.id,
-              result: toolEvent.tool_result,
-              status: 'complete',
-            },
-          });
-        }
-      } else {
-        // Create new tool call
+      if (existingToolCall && toolEvent.tool_result) {
+        // 更新现有工具调用
+        dispatch({
+          type: 'UPDATE_TOOL_CALL_IN_MESSAGE',
+          payload: {
+            messageId,
+            toolCallId: existingToolCall.id,
+            result: toolEvent.tool_result,
+            status: 'complete',
+          },
+        });
+      } else if (!existingToolCall) {
+        // 创建新的工具调用
         const newToolCall: ToolCall = {
           id: generateId(),
           name: toolEvent.tool_name,
           param: toolEvent.tool_param || '',
-          result: toolEvent.tool_result || '',
-          timestamp: Date.now(),
+          result: toolEvent.tool_result,
           status: toolEvent.tool_result ? 'complete' : 'calling',
-          displayName: getToolDisplayName(
-            toolEvent.tool_name,
-            toolEvent.tool_param || '',
-            toolEvent.tool_result ? 'complete' : 'calling',
-            toolEvent.tool_result
-          ),
         };
 
         dispatch({
-          type: 'ADD_TOOL_CALL',
-          payload: { toolCall: newToolCall },
+          type: 'ADD_TOOL_CALL_TO_MESSAGE',
+          payload: { messageId, toolCall: newToolCall },
         });
       }
     } else if (event.event_name === 'chat_event') {
@@ -277,23 +270,18 @@ export const useChat = (): UseChatReturn => {
         });
       }
 
-      // Update streaming content with accumulated content
+      // 追加流式内容而不是替换
       if (currentAssistantMessageIdRef.current && chatEvent.content) {
-        const currentMessage = state.messages.find(
-          msg => msg.id === currentAssistantMessageIdRef.current
-        );
-        const newContent = (currentMessage?.content || '') + chatEvent.content;
-        
         dispatch({
-          type: 'UPDATE_STREAMING_CONTENT',
+          type: 'APPEND_STREAMING_CONTENT',
           payload: {
             messageId: currentAssistantMessageIdRef.current,
-            content: newContent,
+            content: chatEvent.content,
           },
         });
       }
     }
-  }, [state.currentToolCalls, state.messages]);
+  }, [state.messages]);
 
   // Handle SSE errors
   const handleSSEError = useCallback((error: ChatError) => {
@@ -313,9 +301,6 @@ export const useChat = (): UseChatReturn => {
         payload: { messageId: currentAssistantMessageIdRef.current },
       });
     }
-
-    // Clear tool calls
-    dispatch({ type: 'CLEAR_TOOL_CALLS' });
 
     // Update connection status
     dispatch({
@@ -401,7 +386,6 @@ export const useChat = (): UseChatReturn => {
   return {
     // State
     messages: state.messages,
-    currentToolCalls: state.currentToolCalls,
     isConnected: state.isConnected,
     isStreaming: state.isStreaming,
     isSending: state.isSending,

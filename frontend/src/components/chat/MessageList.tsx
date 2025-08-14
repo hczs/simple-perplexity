@@ -1,12 +1,11 @@
 import { cn } from "@/lib/utils";
-import { Message, ToolCall } from "@/types/chat";
+import { Message } from "@/types/chat";
+import { Sparkles } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { MessageItem } from "./MessageItem";
-import { ToolCallDisplay } from "./ToolCallDisplay";
 
 interface MessageListProps {
   messages: Message[];
-  toolCalls: ToolCall[];
   isStreaming: boolean;
   className?: string;
   showLoadingSkeleton?: boolean;
@@ -14,7 +13,6 @@ interface MessageListProps {
 
 export function MessageList({
   messages,
-  toolCalls,
   isStreaming,
   className,
   showLoadingSkeleton = false,
@@ -22,7 +20,6 @@ export function MessageList({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new messages or tool calls are added
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -30,108 +27,107 @@ export function MessageList({
     });
   };
 
-  // Scroll to bottom when messages, tool calls, or streaming status changes
   useEffect(() => {
     scrollToBottom();
-  }, [messages.length, toolCalls.length, isStreaming]);
+  }, [messages.length, isStreaming]);
 
-  // Also scroll when message content updates (for streaming)
   useEffect(() => {
     if (isStreaming) {
       scrollToBottom();
     }
   }, [messages, isStreaming]);
 
-  // Create a combined timeline of messages and tool calls
-  const createTimeline = () => {
-    const timeline: Array<
-      | { type: "message"; data: Message; timestamp: number }
-      | { type: "toolCall"; data: ToolCall; timestamp: number }
-    > = [];
-
-    // Add messages to timeline
-    messages.forEach((message) => {
-      timeline.push({
-        type: "message",
-        data: message,
-        timestamp: message.timestamp,
-      });
-    });
-
-    // Add tool calls to timeline
-    toolCalls.forEach((toolCall) => {
-      timeline.push({
-        type: "toolCall",
-        data: toolCall,
-        timestamp: toolCall.timestamp,
-      });
-    });
-
-    // Sort by timestamp
-    return timeline.sort((a, b) => a.timestamp - b.timestamp);
-  };
-
-  const timeline = createTimeline();
-
   return (
     <div
       ref={containerRef}
       className={cn(
-        "flex-1 overflow-y-auto px-4 py-6 space-y-4",
-        "scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent",
+        "flex-1 overflow-y-auto",
+        "scrollbar-thin scrollbar-thumb-muted-foreground/30 scrollbar-track-transparent",
         className
       )}
     >
       {/* Empty state */}
-      {timeline.length === 0 && (
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center space-y-3">
-            <div className="text-4xl">💬</div>
-            <h3 className="text-lg font-medium text-muted-foreground">
-              开始对话
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-sm">
-              发送消息开始与 AI 助手对话，支持实时搜索和时间查询功能
-            </p>
+      {messages.length === 0 && (
+        <div className="flex items-center justify-center h-full px-4">
+          <div className="text-center space-y-6 max-w-md">
+            <div className="relative">
+              <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-2xl">
+                <Sparkles className="w-10 h-10 text-white" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-background animate-pulse" />
+            </div>
+
+            <div className="space-y-3">
+              <h2 className="text-2xl font-bold text-foreground">
+                你好！我是 AI 助手
+              </h2>
+              <p className="text-muted-foreground leading-relaxed">
+                我可以帮你解答问题、处理文档、编写代码，或者只是聊天。
+                <br />
+                有什么我可以帮助你的吗？
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {[
+                { icon: "💡", text: "解答问题" },
+                { icon: "📝", text: "写作协助" },
+                { icon: "💻", text: "编程帮助" },
+                { icon: "🔍", text: "信息搜索" },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 p-3 rounded-xl bg-background/60 backdrop-blur-sm border border-border/50"
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="text-foreground font-medium">
+                    {item.text}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Render timeline items */}
-      {timeline.map((item, index) => {
-        if (item.type === "message") {
-          const message = item.data as Message;
-          const isLastMessage = index === timeline.length - 1;
-          const isStreamingThisMessage =
-            isStreaming &&
-            isLastMessage &&
-            message.type === "assistant" &&
-            message.status === "streaming";
+      {/* Messages */}
+      {messages.length > 0 && (
+        <div className="px-4 py-6 space-y-6 max-w-4xl mx-auto">
+          {messages.map((message, index) => {
+            const isLastMessage = index === messages.length - 1;
+            const isStreamingThisMessage =
+              isStreaming &&
+              isLastMessage &&
+              message.type === "assistant" &&
+              message.status === "streaming";
 
-          return (
-            <MessageItem
-              key={`message-${message.id}`}
-              message={message}
-              isStreaming={isStreamingThisMessage}
-            />
-          );
-        } else {
-          const toolCall = item.data as ToolCall;
-          return (
-            <ToolCallDisplay
-              key={`toolcall-${toolCall.id}`}
-              toolCall={toolCall}
-            />
-          );
-        }
-      })}
+            return (
+              <MessageItem
+                key={message.id}
+                message={message}
+                isStreaming={isStreamingThisMessage}
+              />
+            );
+          })}
 
-      {/* Show loading skeleton when processing */}
-      {showLoadingSkeleton && (
-        <>
-          <ToolCallSkeleton toolType="time" />
-          <MessageSkeleton isUser={false} />
-        </>
+          {/* Show loading skeleton when processing */}
+          {showLoadingSkeleton && (
+            <div className="space-y-4">
+              <div className="flex justify-start">
+                <div className="enhanced-card rounded-2xl p-4 max-w-xs">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" />
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-100" />
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce delay-200" />
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    正在处理...
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Scroll anchor */}

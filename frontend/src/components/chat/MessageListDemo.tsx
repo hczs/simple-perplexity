@@ -1,11 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Message, ToolCall } from "@/types/chat";
+import { Message } from "@/types/chat";
 import { useState } from "react";
 import { MessageList } from "./MessageList";
 
 export function MessageListDemo() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [toolCalls, setToolCalls] = useState<ToolCall[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
 
   const addUserMessage = () => {
@@ -19,31 +18,44 @@ export function MessageListDemo() {
     setMessages((prev) => [...prev, newMessage]);
   };
 
-  const addToolCall = () => {
-    const newToolCall: ToolCall = {
-      id: `tool-${Date.now()}`,
-      name: "current_time",
-      param: "",
-      result: "",
+  const addMessageWithToolCall = () => {
+    const newMessage: Message = {
+      id: `msg-${Date.now()}`,
+      type: "assistant",
+      content: "正在获取当前时间...",
       timestamp: Date.now(),
-      status: "calling",
-      displayName: "正在获取当前时间",
+      status: "streaming",
+      toolCalls: [
+        {
+          id: `tool-${Date.now()}`,
+          name: "current_time",
+          param: "",
+          status: "calling",
+        },
+      ],
     };
-    setToolCalls((prev) => [...prev, newToolCall]);
+    setMessages((prev) => [...prev, newMessage]);
+    setIsStreaming(true);
 
-    // Simulate completion after 2 seconds
+    // Simulate tool completion after 2 seconds
     setTimeout(() => {
-      setToolCalls((prev) =>
-        prev.map((tc) =>
-          tc.id === newToolCall.id
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === newMessage.id
             ? {
-                ...tc,
+                ...msg,
+                content: "当前时间是 2025-08-13 21:21:43",
                 status: "complete" as const,
-                result: "2025-08-13 21:21:43",
+                toolCalls: msg.toolCalls?.map((tc) => ({
+                  ...tc,
+                  status: "complete" as const,
+                  result: "2025-08-13 21:21:43",
+                })),
               }
-            : tc
+            : msg
         )
       );
+      setIsStreaming(false);
     }, 2000);
   };
 
@@ -86,7 +98,6 @@ export function MessageListDemo() {
 
   const clearAll = () => {
     setMessages([]);
-    setToolCalls([]);
     setIsStreaming(false);
   };
 
@@ -98,8 +109,8 @@ export function MessageListDemo() {
           <Button size="sm" onClick={addUserMessage}>
             添加用户消息
           </Button>
-          <Button size="sm" onClick={addToolCall} variant="outline">
-            添加工具调用
+          <Button size="sm" onClick={addMessageWithToolCall} variant="outline">
+            添加带工具调用的消息
           </Button>
           <Button size="sm" onClick={addAssistantMessage} variant="outline">
             添加流式回复
@@ -112,7 +123,6 @@ export function MessageListDemo() {
 
       <MessageList
         messages={messages}
-        toolCalls={toolCalls}
         isStreaming={isStreaming}
         className="flex-1"
       />

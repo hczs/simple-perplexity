@@ -2,48 +2,87 @@
 
 @layer base {
   :root {
+    /* 亮色主题 - 基于自然光谱优化 */
     --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --foreground: 240 6% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 240 6% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
+    --popover-foreground: 240 6% 10%;
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 240 4% 96%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 4% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 4% 96%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
+    --border: 240 6% 92%;
+    --input: 240 6% 92%;
+    --ring: 240 6% 10%;
     --radius: 0.5rem;
+    
+    /* 新增：层级系统 */
+    --surface-1: 0 0% 99%;
+    --surface-2: 240 4% 97%;
+    --surface-3: 240 4% 94%;
+    --text-primary: 240 6% 10%;
+    --text-secondary: 240 4% 46%;
+    --text-tertiary: 240 4% 64%;
   }
 
-  .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+  /* 暗色主题 - 基于人体工程学优化，减少眼部疲劳 */
+  html.dark,
+  .dark,
+  [data-theme="dark"] {
+    /* 主背景：温暖的深灰，避免纯黑造成的眼部疲劳 */
+    --background: 240 4% 9%;
+    --foreground: 240 5% 96%;
+    
+    /* 卡片层级：渐进式深度，清晰的视觉层次 */
+    --card: 240 4% 11%;
+    --card-foreground: 240 5% 96%;
+    --popover: 240 4% 13%;
+    --popover-foreground: 240 5% 96%;
+    
+    /* 交互元素：保持足够对比度的同时避免过度刺激 */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 240 5% 96%;
+    
+    /* 静音元素：精心调校的中性色调 */
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 4% 65%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 240 5% 96%;
+    
+    /* 状态色：在暗色环境下的最佳可读性 */
+    --destructive: 0 63% 58%;
+    --destructive-foreground: 240 5% 96%;
+    
+    /* 边框和输入：微妙但清晰的分界线 */
+    --border: 240 4% 18%;
+    --input: 240 4% 16%;
+    --ring: 240 5% 84%;
+    
+    /* 层级系统：为复杂界面提供清晰的深度感知 */
+    --surface-1: 240 4% 11%;
+    --surface-2: 240 4% 13%;
+    --surface-3: 240 4% 16%;
+    --text-primary: 240 5% 96%;
+    --text-secondary: 240 4% 65%;
+    --text-tertiary: 240 4% 45%;
+  }
+
+  /* 确保body元素正确应用主题 */
+  html.dark body,
+  .dark body,
+  [data-theme="dark"] body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
@@ -76,8 +115,57 @@
   * {
     @apply border-border;
   }
+  
   body {
     @apply bg-background text-foreground;
+    transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
+                color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  /* 优化滚动条样式 */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+  }
+  
+  /* 选择文本的优化 */
+  ::selection {
+    background-color: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
+  }
+  
+  /* 用户消息气泡内的文本选择优化 */
+  .user-message-bubble ::selection {
+    /* 蓝色背景上用更深的蓝色高亮，白色文字 */
+    background-color: hsl(217 91% 45%);
+    color: hsl(var(--primary-foreground));
+  }
+  
+  /* 焦点环优化 */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  
+  /* 确保所有元素都能正确继承主题 */
+  html.dark *,
+  .dark *,
+  [data-theme="dark"] * {
+    border-color: hsl(var(--border));
   }
 }
 
@@ -87,5 +175,137 @@
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
+  }
+}
+
+/* 专业级暗色主题组件优化 */
+@layer components {
+  /* 智能背景适配 */
+  .bg-white {
+    @apply bg-background;
+  }
+  
+  .bg-white\/80 {
+    background-color: hsl(var(--background) / 0.8);
+  }
+  
+  .bg-white\/90 {
+    background-color: hsl(var(--background) / 0.9);
+  }
+  
+  /* 智能文本颜色适配 */
+  .text-slate-900 {
+    color: hsl(var(--text-primary));
+  }
+  
+  .text-slate-700 {
+    color: hsl(var(--text-primary));
+  }
+  
+  .text-slate-600 {
+    color: hsl(var(--text-secondary));
+  }
+  
+  .text-slate-400 {
+    color: hsl(var(--text-tertiary));
+  }
+  
+  .text-slate-300 {
+    color: hsl(var(--text-secondary));
+  }
+  
+  .text-slate-100 {
+    color: hsl(var(--text-primary));
+  }
+  
+  /* 优雅的渐变背景 - 亮色模式 */
+  .bg-gradient-to-br.from-slate-50 {
+    background: linear-gradient(to bottom right, 
+      hsl(240 4% 96%), 
+      hsl(240 4% 98%), 
+      hsl(240 4% 96%)
+    );
+  }
+  
+  /* 暗色主题专用渐变 - 确保足够对比度 */
+  html.dark .bg-gradient-to-br.from-slate-50,
+  .dark .bg-gradient-to-br.from-slate-50,
+  [data-theme="dark"] .bg-gradient-to-br.from-slate-50 {
+    background: linear-gradient(to bottom right, 
+      hsl(240 4% 13%), 
+      hsl(240 4% 16%), 
+      hsl(240 4% 13%)
+    );
+  }
+  
+  /* 增强的卡片样式 */
+  .enhanced-card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 3px 0 hsl(var(--foreground) / 0.1);
+  }
+  
+  html.dark .enhanced-card,
+  .dark .enhanced-card,
+  [data-theme="dark"] .enhanced-card {
+    box-shadow: 0 1px 3px 0 hsl(0 0% 0% / 0.3);
+  }
+
+  /* Markdown 内容优化 */
+  .prose {
+    --tw-prose-body: hsl(var(--foreground));
+    --tw-prose-headings: hsl(var(--foreground));
+    --tw-prose-lead: hsl(var(--muted-foreground));
+    --tw-prose-links: hsl(var(--primary));
+    --tw-prose-bold: hsl(var(--foreground));
+    --tw-prose-counters: hsl(var(--muted-foreground));
+    --tw-prose-bullets: hsl(var(--muted-foreground));
+    --tw-prose-hr: hsl(var(--border));
+    --tw-prose-quotes: hsl(var(--foreground));
+    --tw-prose-quote-borders: hsl(var(--border));
+    --tw-prose-captions: hsl(var(--muted-foreground));
+    --tw-prose-code: hsl(var(--foreground));
+    --tw-prose-pre-code: hsl(var(--muted-foreground));
+    --tw-prose-pre-bg: hsl(var(--muted));
+    --tw-prose-th-borders: hsl(var(--border));
+    --tw-prose-td-borders: hsl(var(--border));
+  }
+
+  /* 用户消息气泡内的 prose 样式重置 */
+  .user-message-bubble .prose {
+    --tw-prose-body: hsl(var(--primary-foreground));
+    --tw-prose-headings: hsl(var(--primary-foreground));
+    --tw-prose-bold: hsl(var(--primary-foreground));
+    --tw-prose-code: hsl(var(--primary-foreground));
+  }
+
+  /* 代码块容器优化 */
+  .prose pre {
+    @apply !bg-muted !text-muted-foreground;
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* 行内代码优化 */
+  .prose :not(pre) > code {
+    @apply !bg-muted !text-foreground px-1.5 py-0.5 rounded-md;
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  /* 引用块优化 */
+  .prose blockquote {
+    @apply !border-l-primary/30 !bg-muted/30;
+  }
+
+  /* 表格优化 */
+  .prose table {
+    @apply !border-border;
+  }
+
+  .prose th {
+    @apply !border-border !bg-muted/50;
+  }
+
+  .prose td {
+    @apply !border-border;
   }
 }
