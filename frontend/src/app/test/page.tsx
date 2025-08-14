@@ -1,3 +1,4 @@
+import { ChatInputDemo } from "@/components/chat/ChatInputDemo";
 import { MessageDemo } from "@/components/chat/MessageDemo";
 import { Button } from "@/components/ui/button";
 import {
@@ -105,6 +106,18 @@ export default function TestPage() {
         </CardHeader>
         <CardContent>
           <MessageDemo />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Chat Input Component Test</CardTitle>
+          <CardDescription>
+            Testing the chat input component with send functionality
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ChatInputDemo />
         </CardContent>
       </Card>
     </div>
