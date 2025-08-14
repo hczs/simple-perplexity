@@ -90,7 +90,7 @@ describe("ChatContainer", () => {
     Object.assign(mockUseChat, { isStreaming: true });
     render(<ChatContainer />);
 
-    expect(screen.getByText("正在接收...")).toBeInTheDocument();
+    expect(screen.getByText("正在接收回复...")).toBeInTheDocument();
   });
 
   it("displays error message when there is an error", () => {

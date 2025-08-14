@@ -143,4 +143,30 @@ describe("ChatInput", () => {
 
     expect(mockOnSendMessage).toHaveBeenCalledWith("测试消息");
   });
+
+  it("shows streaming indicator when isStreaming is true", () => {
+    render(
+      <ChatInput
+        onSendMessage={mockOnSendMessage}
+        disabled={false}
+        isStreaming={true}
+      />
+    );
+
+    expect(screen.getByText("AI 正在思考并回复中...")).toBeInTheDocument();
+  });
+
+  it("hides streaming indicator when isStreaming is false", () => {
+    render(
+      <ChatInput
+        onSendMessage={mockOnSendMessage}
+        disabled={false}
+        isStreaming={false}
+      />
+    );
+
+    expect(
+      screen.queryByText("AI 正在思考并回复中...")
+    ).not.toBeInTheDocument();
+  });
 });

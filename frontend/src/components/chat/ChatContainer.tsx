@@ -70,8 +70,14 @@ export function ChatContainer({ className }: ChatContainerProps) {
       )}
       {isStreaming && (
         <div className="flex items-center gap-1">
-          <div className="h-2 w-2 bg-blue-500 rounded-full animate-pulse" />
-          <span>正在接收...</span>
+          <div className="flex space-x-1">
+            <div className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-bounce" />
+            <div className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-bounce delay-100" />
+            <div className="h-1.5 w-1.5 bg-blue-500 rounded-full animate-bounce delay-200" />
+          </div>
+          <span className="text-blue-600 dark:text-blue-400">
+            正在接收回复...
+          </span>
         </div>
       )}
     </div>
@@ -173,6 +179,7 @@ export function ChatContainer({ className }: ChatContainerProps) {
       <ChatInput
         onSendMessage={handleSendMessage}
         disabled={isInputDisabled}
+        isStreaming={isStreaming}
         placeholder={
           error
             ? "请先解决连接错误..."

@@ -1,5 +1,5 @@
 import { Message } from "@/types/chat";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { MessageItem } from "../MessageItem";
 
@@ -64,6 +64,56 @@ describe("MessageItem", () => {
 
     render(<MessageItem message={errorMessage} />);
 
-    expect(screen.getByText("!")).toBeInTheDocument();
+    expect(screen.getByText("发送失败")).toBeInTheDocument();
+  });
+
+  it("shows streaming status for assistant message", () => {
+    const streamingMessage: Message = {
+      ...mockAssistantMessage,
+      status: "streaming",
+      content: "I'm typing...",
+    };
+
+    render(<MessageItem message={streamingMessage} />);
+
+    expect(screen.getByText("正在输入")).toBeInTheDocument();
+  });
+
+  it("shows complete status for assistant message", () => {
+    const completeMessage: Message = {
+      ...mockAssistantMessage,
+      status: "complete",
+    };
+
+    render(<MessageItem message={completeMessage} />);
+
+    expect(screen.getByText("完成")).toBeInTheDocument();
+  });
+
+  it("shows sending status for user message", () => {
+    const sendingMessage: Message = {
+      ...mockUserMessage,
+      status: "sending",
+    };
+
+    render(<MessageItem message={sendingMessage} />);
+
+    expect(screen.getByText("发送中")).toBeInTheDocument();
+  });
+
+  it("displays typewriter effect for streaming assistant messages", async () => {
+    const streamingMessage: Message = {
+      ...mockAssistantMessage,
+      status: "streaming",
+      content: "Hello world",
+    };
+
+    render(<MessageItem message={streamingMessage} />);
+
+    // Initially should show empty or partial content
+    await waitFor(() => {
+      const content = screen.getByText(/Hello/);
+      expect(content).toBeInTheDocument();
+    });
   });
 });

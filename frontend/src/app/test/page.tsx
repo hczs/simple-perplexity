@@ -120,6 +120,18 @@ export default function TestPage() {
           <ChatInputDemo />
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Streaming Content Demo</CardTitle>
+          <CardDescription>
+            Testing the typewriter effect and streaming indicators
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <StreamingDemo />
+        </CardContent>
+      </Card>
     </div>
   );
 }

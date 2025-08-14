@@ -264,8 +264,8 @@ export const useChat = (): UseChatReturn => {
         });
       }
 
-      // Update streaming content
-      if (currentAssistantMessageIdRef.current) {
+      // Update streaming content with accumulated content
+      if (currentAssistantMessageIdRef.current && chatEvent.content) {
         const currentMessage = state.messages.find(
           msg => msg.id === currentAssistantMessageIdRef.current
         );
