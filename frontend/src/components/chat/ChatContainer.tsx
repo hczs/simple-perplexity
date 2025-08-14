@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useChat } from "@/hooks/useChat";
 import { cn } from "@/lib/utils";
 import { AlertCircle, RefreshCw, Wifi, WifiOff } from "lucide-react";
@@ -121,16 +120,13 @@ export function ChatContainer({ className }: ChatContainerProps) {
 
   // Header component
   const ChatHeader = () => (
-    <div className="flex items-center justify-between p-4 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="flex items-center justify-between p-3 border-b">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-            <span className="text-white text-sm font-medium">AI</span>
+          <div className="h-6 w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+            <span className="text-white text-xs font-medium">AI</span>
           </div>
-          <div>
-            <h1 className="text-lg font-semibold">AI 助手</h1>
-            <ConnectionStatus />
-          </div>
+          <ConnectionStatus />
         </div>
       </div>
 
@@ -141,13 +137,12 @@ export function ChatContainer({ className }: ChatContainerProps) {
             size="sm"
             onClick={handleResetChat}
             disabled={isStreaming}
-            className="text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground h-8"
           >
-            <RefreshCw className="h-4 w-4 mr-1" />
-            重置对话
+            <RefreshCw className="h-3 w-3 mr-1" />
+            重置
           </Button>
         )}
-        <ThemeToggle />
       </div>
     </div>
   );

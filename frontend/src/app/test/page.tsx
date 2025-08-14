@@ -1,5 +1,6 @@
 import { ChatInputDemo } from "@/components/chat/ChatInputDemo";
 import { MessageDemo } from "@/components/chat/MessageDemo";
+import { StreamingDemo } from "@/components/chat/StreamingDemo";
 import { Button } from "@/components/ui/button";
 import {
   Card,
