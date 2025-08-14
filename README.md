@@ -14,6 +14,16 @@ A full-stack intelligent Q&A system built with LangGraph and Next.js, providing 
 - **Modern UI**: Clean, responsive interface with dark/light theme support
 - **Full-stack Architecture**: FastAPI backend with Next.js frontend
 
+## 📸 Screenshots
+
+### Light Theme
+
+![Light Theme](img/light.png)
+
+### Dark Theme
+
+![Dark Theme](img/dark.png)
+
 ## 🏗️ Architecture
 
 ```
