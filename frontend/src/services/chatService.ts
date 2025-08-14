@@ -1,6 +1,6 @@
 import { ChatRequest, SSEEvent } from '@/types/api';
 import { ChatError } from '@/types/errors';
-import { validateSSEEvent } from '@/utils/sseParser';
+import { SSEParseError, createSSEProcessor, parseSSEEvent as parseSSEEventUtil } from '@/utils/sseParser';
 
 export class ChatService {
   private readonly baseUrl: string;
@@ -62,27 +62,17 @@ export class ChatService {
    * 解析 SSE 事件数据
    */
   parseSSEEvent(data: string): SSEEvent | null {
-    try {
-      // 移除 "data: " 前缀
-      const cleanData = data.replace(/^data:\s*/, '').trim();
-      
-      if (!cleanData || cleanData === '[DONE]') {
-        return null;
-      }
-
-      const parsed = JSON.parse(cleanData);
-      
-      // 验证事件格式
-      if (!this.isValidSSEEvent(parsed)) {
-        console.warn('Invalid SSE event format:', parsed);
-        return null;
-      }
-
-      return parsed as SSEEvent;
-    } catch (error) {
-      console.error('Failed to parse SSE event:', error, 'Data:', data);
-      return null;
+    const result = parseSSEEventUtil(data);
+    
+    if (result.success && result.event) {
+      return result.event;
     }
+    
+    if (result.error) {
+      console.warn('SSE parsing error:', result.error);
+    }
+    
+    return null;
   }
 
   /**
@@ -96,7 +86,14 @@ export class ChatService {
   ): ReadableStreamDefaultReader<Uint8Array> {
     const reader = stream.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
+    
+    // 使用新的 SSE 处理器
+    const processor = createSSEProcessor(
+      onEvent,
+      (parseError: SSEParseError) => {
+        onError(this.createChatError('validation', `SSE parsing error: ${parseError.message}`, parseError.type));
+      }
+    );
 
     const processStream = async () => {
       try {
@@ -104,24 +101,16 @@ export class ChatService {
           const { done, value } = await reader.read();
           
           if (done) {
+            processor.finish(); // 处理缓冲区中剩余的数据
             onComplete();
             break;
           }
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop() || ''; // 保留最后一行（可能不完整）
-
-          for (const line of lines) {
-            if (line.trim() && line.startsWith('data:')) {
-              const event = this.parseSSEEvent(line);
-              if (event) {
-                onEvent(event);
-              }
-            }
-          }
+          const chunk = decoder.decode(value, { stream: true });
+          processor.processChunk(chunk);
         }
       } catch (error) {
+        processor.reset(); // 重置处理器状态
         onError(this.createChatError('connection', `Stream reading failed: ${(error as Error).message}`));
       }
     };
@@ -130,12 +119,7 @@ export class ChatService {
     return reader;
   }
 
-  /**
-   * 验证 SSE 事件格式
-   */
-  private isValidSSEEvent(data: any): boolean {
-    return validateSSEEvent(data);
-  }
+
 
   /**
    * 创建标准化的聊天错误
