@@ -8,7 +8,7 @@ interface ToolCallDisplayProps {
 // 工具调用状态映射
 const toolDisplayMap = {
   current_time: {
-    calling: (param?: string) => "正在获取当前时间",
+    calling: () => "正在获取当前时间",
     complete: (result: string) => `获取到当前时间为 ${result}`,
     icon: "🕐",
   },
@@ -31,19 +31,15 @@ export function ToolCallDisplay({ toolCall }: ToolCallDisplayProps) {
   // 获取显示文本
   const getDisplayText = () => {
     if (isComplete && toolCall.result) {
-      if (toolCall.name === "current_time") {
-        return toolConfig.complete(toolCall.result);
-      } else if (toolCall.name === "tavily_search") {
-        return toolConfig.complete(toolCall.result);
-      }
+      return toolConfig.complete(toolCall.result);
     }
 
     // 调用中状态
-    if (toolCall.name === "tavily_search" && toolCall.param) {
+    if (toolCall.name === "tavily_search") {
       return toolConfig.calling(toolCall.param);
     }
 
-    return toolConfig.calling(toolCall.param);
+    return toolConfig.calling();
   };
 
   return (
